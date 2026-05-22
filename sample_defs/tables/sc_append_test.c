@@ -73,7 +73,7 @@ typedef struct
 typedef union
 {
     SC_AtsAppendStruct_t ats;
-    uint16          buf[SC_APPEND_BUFF_SIZE];
+    uint16               buf[SC_APPEND_BUFF_SIZE];
 } SC_AtsAppendTable_t;
 
 /* Helper macro to get size of structure elements */
