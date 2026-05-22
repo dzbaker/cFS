@@ -18,7 +18,24 @@
 
 /**
  * @file
- *   CFS Stored Command (SC) sample ATS append table
+ *   CFS Stored Command (SC) sample ATS table 2
+ *
+ * The following source code demonstrates how to create a sample
+ * Stored Command ATS table using the software defined command structures.
+ * It's also possible to create this table via alternative tools
+ * (ground system) and or system agnostic data definitions (XTCE/EDS/JSON).
+ *
+ * This source file creates a sample ATS table that contains only
+ * the following commands that are scheduled as follows:
+ *
+ * SC NOOP command, execution time = SC_TEST_TIME + 30
+ * SC Enable RTS #1 command, execution time = SC_TEST_TIME + 35
+ * SC Start RTS #1 command, execution time = SC_TEST_TIME + 40
+ * SC Reset Counters command, execution time = SC_TEST_TIME + 100
+ *
+ * Before starting the sample ATS, set time = SC_TEST_TIME.  The
+ * user will then have 30 seconds to start the ATS before the
+ * first command in the sample ATS is scheduled to execute.
  */
 
 #include "cfe.h"
@@ -32,10 +49,10 @@
 
 /* Spacecraft sample ATS time offsets */
 #define SC_TEST_TIME (1000000)
-#define SC_CMD1_TIME (SC_TEST_TIME + 130)
-#define SC_CMD2_TIME (SC_TEST_TIME + 135)
-#define SC_CMD3_TIME (SC_TEST_TIME + 140)
-#define SC_CMD4_TIME (SC_TEST_TIME + 200)
+#define SC_CMD1_TIME (SC_TEST_TIME + 30)
+#define SC_CMD2_TIME (SC_TEST_TIME + 35)
+#define SC_CMD3_TIME (SC_TEST_TIME + 40)
+#define SC_CMD4_TIME (SC_TEST_TIME + 100)
 
 /* Checksum for each sample command */
 #ifndef SC_NOOP_CKSUM
@@ -67,20 +84,20 @@ typedef struct
     SC_StartRtsCmd_t           cmd3;
     SC_AlignedAtsEntryHeader_t hdr4;
     SC_ResetCountersCmd_t      cmd4;
-} SC_AtsAppendStruct_t;
+} SC_AtsStruct2_t;
 
 /* Define the union to size the table correctly */
 typedef union
 {
-    SC_AtsAppendStruct_t ats;
-    uint16          buf[SC_APPEND_BUFF_SIZE];
-} SC_AtsAppendTable_t;
+    SC_AtsStruct2_t ats;
+    uint16          buf[SC_ATS_BUFF_SIZE];
+} SC_AtsTable2_t;
 
 /* Helper macro to get size of structure elements */
-#define SC_MEMBER_SIZE(member) (sizeof(((SC_AtsAppendStruct_t *)0)->member))
+#define SC_MEMBER_SIZE(member) (sizeof(((SC_AtsStruct2_t *)0)->member))
 
 /* Used designated intializers to be verbose, modify as needed/desired */
-SC_AtsAppendTable_t SC_AtsAppend = {
+SC_AtsTable2_t SC_Ats2 = {
     .ats = {/* 1 */
             .hdr1.Hdr = {.CmdNumber  = SC_COMMAND_NUM_INITIALIZER(1),
                      .TimeTag_MS = SC_CMD1_TIME >> 16,
@@ -109,4 +126,4 @@ SC_AtsAppendTable_t SC_AtsAppend = {
                                           SC_RESET_COUNTERS_CKSUM)}}};
 
 /* Macro for table structure */
-CFE_TBL_FILEDEF(SC_AtsAppend, SC.APPEND_TBL, SC Example APPEND_TBL, sc_append-test.tbl)
+CFE_TBL_FILEDEF(SC_Ats2, SC.ATS_TBL2, SC Example ATS_TBL2, sc_ats2_test.tbl)
