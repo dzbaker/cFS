@@ -40,9 +40,14 @@ jobs:
           path: source
 
       # Setup the build system
-      - name: Create build tree      
-        if: ${{ inputs.cmake-project-options != '' }}
-        run: cmake ${{ inputs.cmake-project-options }} -S source -B build
+      - name: Create build tree
+        if: ${{ inputs.compile-commands-json == '' && inputs.cmake-project-options != '' }}
+        id: run-cmake
+        env:
+          CMAKE_OPTIONS: ${{ inputs.cmake-project-options }}
+        run: |
+          cmake ${CMAKE_OPTIONS} -DCMAKE_EXPORT_COMPILE_COMMANDS=TRUE -S source -B build
+          echo "compile-commands-json=${GITHUB_WORKSPACE}/build/compile_commands.json" >> ${GITHUB_OUTPUT}
 
       - name: Run cppcheck
         uses: nasa/cFS/actions/cppcheck@dev
@@ -50,4 +55,4 @@ jobs:
         with:
           source-dir: ${{ inputs.source-dir }}
           strict-dir-list: ${{ inputs.strict-dir-list }}
-          compile-commands-json: ${{ inputs.compile-commands-json }}
+          compile-commands-json: ${{ inputs.compile-commands-json || steps.run-cmake.outputs.compile-commands-json }}
